@@ -30,6 +30,8 @@ import { Router } from '@angular/router';
 })
 export class AnotacoesComponent implements OnInit {
   anotacoes: Anotacao[] = [];
+  anotacoesFiltradas: Anotacao[] = [];
+  termoBusca: string = '';
   loading = false;
   mostrarFormulario = false;
   novaAnotacao: Anotacao = {
@@ -53,7 +55,8 @@ export class AnotacoesComponent implements OnInit {
     this.loading = true;
     this.anotacoesService.listarAnotacoes().subscribe({
       next: (anotacoes) => {
-        this.anotacoes = anotacoes;
+        this.anotacoes = this.ordenarAnotacoes(anotacoes);
+        this.aplicarFiltro(); // Aplica o filtro inicial
         this.loading = false;
       },
       error: (error) => {
@@ -62,6 +65,22 @@ export class AnotacoesComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  ordenarAnotacoes(anotacoes: Anotacao[]): Anotacao[] {
+    return anotacoes.sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR'));
+  }
+
+  aplicarFiltro() {
+    const termo = this.termoBusca.toLowerCase().trim();
+    if (!termo) {
+      this.anotacoesFiltradas = [...this.anotacoes];
+    } else {
+      this.anotacoesFiltradas = this.anotacoes.filter(anotacao =>
+        anotacao.titulo.toLowerCase().includes(termo) ||
+        anotacao.conteudo.toLowerCase().includes(termo)
+      );
+    }
   }
 
   abrirFormulario() {

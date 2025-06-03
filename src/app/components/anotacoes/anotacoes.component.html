@@ -13,7 +13,15 @@
   </div>
 
   <main class="content">
-    <p *ngIf="loading">Carregando anotações...</p>
+    <div class="search-container" *ngIf="!mostrarFormulario">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar anotações</mat-label>
+        <input matInput [(ngModel)]="termoBusca" (ngModelChange)="aplicarFiltro()" placeholder="Digite para buscar..." [attr.aria-label]="'Campo de busca de anotações'">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <p *ngIf="loading" class="loading-text">Carregando anotações...</p>
 
     <mat-card class="form-card" *ngIf="mostrarFormulario">
       <mat-card-header>
@@ -42,7 +50,11 @@
     </mat-card>
 
     <div class="anotacoes-list" *ngIf="!mostrarFormulario">
-      <mat-card class="anotacao-card" *ngFor="let anotacao of anotacoes">
+      <p *ngIf="anotacoesFiltradas.length === 0 && !loading" class="no-results">
+        {{ termoBusca ? 'Nenhuma anotação encontrada para a busca.' : 'Nenhuma anotação cadastrada.' }}
+      </p>
+      
+      <mat-card class="anotacao-card" *ngFor="let anotacao of anotacoesFiltradas">
         <mat-card-content class="anotacao-content">
           <span class="anotacao-titulo">{{ anotacao.titulo }}</span>
           <div class="anotacao-acoes">

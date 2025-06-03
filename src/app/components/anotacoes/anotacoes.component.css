@@ -26,12 +26,25 @@
   width: 100%;
 }
 
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
-  margin: 1rem 0;
+.search-container {
+  margin-bottom: 1rem;
+}
+
+.search-field {
+  width: 100%;
+}
+
+.loading-text {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 2rem 0;
+}
+
+.no-results {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 2rem 0;
+  font-style: italic;
 }
 
 .form-card {
@@ -59,6 +72,12 @@
 .anotacao-card {
   background-color: white;
   border-radius: 8px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.anotacao-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .anotacao-content {
