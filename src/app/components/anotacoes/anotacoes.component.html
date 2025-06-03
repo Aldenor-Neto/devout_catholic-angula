@@ -2,12 +2,12 @@
   <app-header></app-header>
 
   <div class="toolbar">
-    <button mat-icon-button (click)="voltarParaHome()">
+    <button mat-icon-button (click)="voltarParaHome()" [attr.aria-label]="'Voltar para a página inicial'">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <span>Minhas Anotações</span>
     <span class="spacer"></span>
-    <button mat-fab color="primary" (click)="abrirFormulario()">
+    <button mat-fab color="primary" (click)="abrirFormulario()" [attr.aria-label]="'Criar nova anotação'">
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -32,10 +32,10 @@
           </mat-form-field>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit">
+            <button mat-raised-button color="primary" type="submit" [attr.aria-label]="modoEdicao ? 'Atualizar anotação' : 'Salvar nova anotação'">
               {{ modoEdicao ? 'Atualizar' : 'Salvar' }}
             </button>
-            <button mat-button type="button" (click)="fecharFormulario()">Cancelar</button>
+            <button mat-button type="button" (click)="fecharFormulario()" [attr.aria-label]="'Cancelar'">Cancelar</button>
           </div>
         </form>
       </mat-card-content>
@@ -46,13 +46,13 @@
         <mat-card-content class="anotacao-content">
           <span class="anotacao-titulo">{{ anotacao.titulo }}</span>
           <div class="anotacao-acoes">
-            <button mat-icon-button (click)="visualizarAnotacao(anotacao)" color="primary">
+            <button mat-icon-button (click)="visualizarAnotacao(anotacao)" color="primary" [attr.aria-label]="'Visualizar anotação: ' + anotacao.titulo">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button (click)="editarAnotacao(anotacao)" color="primary">
+            <button mat-icon-button (click)="editarAnotacao(anotacao)" color="primary" [attr.aria-label]="'Editar anotação: ' + anotacao.titulo">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button (click)="excluirAnotacao(anotacao.id!)" color="warn">
+            <button mat-icon-button (click)="excluirAnotacao(anotacao.id!)" color="warn" [attr.aria-label]="'Excluir anotação: ' + anotacao.titulo">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -74,7 +74,7 @@
       <p class="modal-texto">{{ anotacaoVisualizada.conteudo }}</p>
     </mat-card-content>
     <mat-card-actions align="end">
-      <button mat-button (click)="fecharVisualizacao()">Fechar</button>
+      <button mat-button (click)="fecharVisualizacao()" [attr.aria-label]="'Fechar visualização'">Fechar</button>
     </mat-card-actions>
   </mat-card>
 </div> 
