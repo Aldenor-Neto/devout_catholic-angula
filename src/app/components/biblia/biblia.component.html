@@ -1,0 +1,61 @@
+<div class="container">
+  <app-header></app-header>
+
+  <div class="biblia-toolbar">
+    <button mat-icon-button (click)="voltarParaHome()" aria-label="Voltar para a página inicial">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span>Bíblia Sagrada</span>
+    <span class="spacer"></span>
+    <button mat-button (click)="trocarVersao()">
+      {{ versaoAtual === 'avemaria' ? 'Versão Ave Maria' : 'Versão Jerusalém' }}
+    </button>
+  </div>
+
+  <div class="content">
+    @if (loading) {
+      <div class="loading-container">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else if (!livroSelecionado) {
+      <mat-nav-list class="livros-list">
+        @for (livro of livros; track livro) {
+          <a mat-list-item (click)="buscarLivro(livro)">
+            {{ livro }}
+          </a>
+        }
+      </mat-nav-list>
+    } @else {
+      <div class="capitulo-container">
+        <div class="capitulo-header">
+          <h2>{{ livroSelecionado.name }} - Capítulo {{ capituloAtual + 1 }}</h2>
+          <button mat-button (click)="voltarParaLivros()">
+            Voltar para lista de livros
+          </button>
+        </div>
+
+        <div class="versiculos">
+          @for (versiculo of livroSelecionado.chapters[capituloAtual]; track $index) {
+            <p class="versiculo">
+              <span class="versiculo-numero">{{ $index + 1 }}.</span>
+              {{ versiculo }}
+            </p>
+          }
+        </div>
+
+        <div class="navegacao-capitulos">
+          <button mat-raised-button 
+                  [disabled]="capituloAtual === 0"
+                  (click)="capituloAnterior()">
+            Capítulo Anterior
+          </button>
+          <button mat-raised-button 
+                  [disabled]="!livroSelecionado || capituloAtual >= livroSelecionado.chapters.length - 1"
+                  (click)="proximoCapitulo()">
+            Próximo Capítulo
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div> 

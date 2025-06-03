@@ -1,0 +1,19 @@
+<div class="container">
+  <app-header></app-header>
+
+  <div class="content">
+    <div class="subtitle-container">
+      <h2>Sou católico, pratíco minha fé!</h2>
+      <button mat-icon-button (click)="logout()" aria-label="Fazer logout da aplicação" color="warn">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+
+    <div class="funcionalidades">
+      <button mat-raised-button color="primary" *ngFor="let item of funcionalidades" 
+              (click)="handleFuncionalidade(item)">
+        {{ item }}
+      </button>
+    </div>
+  </div>
+</div> 

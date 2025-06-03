@@ -1,0 +1,152 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.toolbar {
+  background-color: #3f51b5;
+  color: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  margin: 1rem 0;
+}
+
+.form-card {
+  margin-bottom: 2rem;
+}
+
+.anotacao-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.anotacoes-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.anotacao-card {
+  background-color: white;
+  border-radius: 8px;
+}
+
+.anotacao-content {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem !important;
+}
+
+.anotacao-titulo {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.anotacao-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Modal de Visualização */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
+  padding: 1rem;
+}
+
+.modal-texto {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .content {
+    padding: 1rem 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .anotacao-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .anotacao-acoes {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+    max-height: 80vh;
+  }
+} 
