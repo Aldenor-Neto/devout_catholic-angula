@@ -60,21 +60,4 @@
       </mat-card>
     </div>
   </main>
-</div>
-
-<!-- Modal de Visualização -->
-<div class="modal" *ngIf="mostrarModal && anotacaoVisualizada">
-  <div class="modal-backdrop" (click)="fecharVisualizacao()"></div>
-  <mat-card class="modal-content">
-    <mat-card-header>
-      <mat-card-title>{{ anotacaoVisualizada.titulo }}</mat-card-title>
-      <mat-card-subtitle>{{ anotacaoVisualizada.data | date:'dd/MM/yyyy HH:mm' }}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="modal-texto">{{ anotacaoVisualizada.conteudo }}</p>
-    </mat-card-content>
-    <mat-card-actions align="end">
-      <button mat-button (click)="fecharVisualizacao()" [attr.aria-label]="'Fechar visualização'">Fechar</button>
-    </mat-card-actions>
-  </mat-card>
 </div> 

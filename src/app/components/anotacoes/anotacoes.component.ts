@@ -32,9 +32,7 @@ export class AnotacoesComponent implements OnInit {
   anotacoes: Anotacao[] = [];
   loading = false;
   mostrarFormulario = false;
-  mostrarModal = false;
-  anotacaoVisualizada: Anotacao | null = null;
-  novaAnotacao: Omit<Anotacao, 'id'> = {
+  novaAnotacao: Anotacao = {
     titulo: '',
     conteudo: '',
     data: new Date().toISOString()
@@ -77,6 +75,16 @@ export class AnotacoesComponent implements OnInit {
   }
 
   fecharFormulario() {
+    if (this.modoEdicao) {
+      if (confirm('Tem certeza que deseja cancelar? As alterações não serão salvas.')) {
+        this.resetarFormulario();
+      }
+    } else {
+      this.resetarFormulario();
+    }
+  }
+
+  resetarFormulario() {
     this.mostrarFormulario = false;
     this.modoEdicao = false;
     this.anotacaoEmEdicao = null;
@@ -88,17 +96,24 @@ export class AnotacoesComponent implements OnInit {
   }
 
   salvarAnotacao() {
-    if (!this.novaAnotacao.titulo || !this.novaAnotacao.conteudo) {
+    if (!this.novaAnotacao.titulo.trim() || !this.novaAnotacao.conteudo.trim()) {
       alert('Por favor, preencha todos os campos');
       return;
     }
 
     this.loading = true;
-    if (this.modoEdicao && this.anotacaoEmEdicao) {
-      this.anotacoesService.atualizarAnotacao(this.anotacaoEmEdicao.id!, this.novaAnotacao).subscribe({
+    if (this.modoEdicao && this.anotacaoEmEdicao?.id) {
+      const dadosAtualizacao: Anotacao = {
+        id: this.anotacaoEmEdicao.id,
+        titulo: this.novaAnotacao.titulo.trim(),
+        conteudo: this.novaAnotacao.conteudo.trim(),
+        data: this.anotacaoEmEdicao.data
+      };
+
+      this.anotacoesService.atualizarAnotacao(this.anotacaoEmEdicao.id, dadosAtualizacao).subscribe({
         next: () => {
           this.carregarAnotacoes();
-          this.fecharFormulario();
+          this.resetarFormulario();
           alert('Anotação atualizada com sucesso!');
         },
         error: (error) => {
@@ -108,10 +123,16 @@ export class AnotacoesComponent implements OnInit {
         }
       });
     } else {
-      this.anotacoesService.criarAnotacao(this.novaAnotacao).subscribe({
+      const novaNota = {
+        titulo: this.novaAnotacao.titulo.trim(),
+        conteudo: this.novaAnotacao.conteudo.trim(),
+        data: new Date().toISOString()
+      };
+
+      this.anotacoesService.criarAnotacao(novaNota).subscribe({
         next: () => {
           this.carregarAnotacoes();
-          this.fecharFormulario();
+          this.resetarFormulario();
           alert('Anotação criada com sucesso!');
         },
         error: (error) => {
@@ -124,24 +145,31 @@ export class AnotacoesComponent implements OnInit {
   }
 
   visualizarAnotacao(anotacao: Anotacao) {
-    this.anotacaoVisualizada = anotacao;
-    this.mostrarModal = true;
-  }
-
-  fecharVisualizacao() {
-    this.mostrarModal = false;
-    this.anotacaoVisualizada = null;
+    if (anotacao.id) {
+      this.router.navigate(['/anotacoes/visualizar', anotacao.id]);
+    }
   }
 
   editarAnotacao(anotacao: Anotacao) {
-    this.modoEdicao = true;
-    this.anotacaoEmEdicao = { ...anotacao };
-    this.novaAnotacao = {
-      titulo: anotacao.titulo,
-      conteudo: anotacao.conteudo,
-      data: anotacao.data
-    };
-    this.mostrarFormulario = true;
+    this.loading = true;
+    this.anotacoesService.obterAnotacao(anotacao.id!).subscribe({
+      next: (anotacaoCompleta) => {
+        this.modoEdicao = true;
+        this.anotacaoEmEdicao = { ...anotacaoCompleta };
+        this.novaAnotacao = {
+          titulo: anotacaoCompleta.titulo,
+          conteudo: anotacaoCompleta.conteudo,
+          data: anotacaoCompleta.data
+        };
+        this.mostrarFormulario = true;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar anotação:', error);
+        alert(error.error || 'Erro ao carregar a anotação');
+        this.loading = false;
+      }
+    });
   }
 
   excluirAnotacao(id: string) {
