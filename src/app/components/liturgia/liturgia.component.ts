@@ -4,13 +4,26 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderComponent } from '../header/header.component';
 import { LiturgiaService } from '../../services/liturgia.service';
 import { Liturgia } from '../../interfaces/liturgia.interface';
+import { BrazilianDateAdapter } from '../../shared/brazilian-date.adapter';
+
+const BRAZILIAN_DATE_FORMATS = {
+  parse: {
+    dateInput: 'input',
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
   selector: 'app-liturgia',
@@ -27,6 +40,11 @@ import { Liturgia } from '../../interfaces/liturgia.interface';
     MatProgressSpinnerModule,
     HeaderComponent
   ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: DateAdapter, useClass: BrazilianDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
+  ],
   template: `
     <div class="container">
       <app-header></app-header>
@@ -35,7 +53,7 @@ import { Liturgia } from '../../interfaces/liturgia.interface';
         <div class="controls">
           <mat-form-field appearance="outline">
             <mat-label>Escolher data</mat-label>
-            <input matInput [matDatepicker]="picker" [value]="selectedDate" (dateChange)="onDateChange($event)">
+            <input matInput [matDatepicker]="picker" [value]="selectedDate" (dateChange)="onDateChange($event)" placeholder="DD/MM/AAAA">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
@@ -206,7 +224,12 @@ export class LiturgiaComponent implements OnInit {
   selectedDate = new Date();
   activeSection: 'oferendas' | 'leituras' | 'antifona' = 'leituras';
 
-  constructor(private liturgiaService: LiturgiaService) {}
+  constructor(
+    private liturgiaService: LiturgiaService,
+    private dateAdapter: DateAdapter<Date>
+  ) {
+    this.dateAdapter.setLocale('pt-BR');
+  }
 
   ngOnInit() {
     this.fetchLiturgiaData(
