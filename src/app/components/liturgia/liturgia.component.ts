@@ -14,6 +14,8 @@ import { LiturgiaService } from '../../services/liturgia.service';
 import { Liturgia } from '../../interfaces/liturgia.interface';
 import { BrazilianDateAdapter } from '../../shared/brazilian-date.adapter';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AiService } from '../../services/ai.service';
+import { AuthService } from '../../services/auth.service';
 
 const BRAZILIAN_DATE_FORMATS = {
   parse: {
@@ -26,6 +28,13 @@ const BRAZILIAN_DATE_FORMATS = {
     monthYearA11yLabel: 'MMMM YYYY',
   },
 };
+
+interface ReflexoesLeitura {
+  primeiraLeitura?: string;
+  segundaLeitura?: string;
+  salmo?: string;
+  evangelho?: string;
+}
 
 @Component({
   selector: 'app-liturgia',
@@ -113,23 +122,67 @@ const BRAZILIAN_DATE_FORMATS = {
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.referencia }}</p>
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.titulo }}</p>
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.texto }}</p>
+              <button mat-button color="primary" (click)="gerarReflexao('primeiraLeitura')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão da Primeira Leitura'">
+                <mat-icon aria-hidden="true">psychology</mat-icon>
+                <span>Reflexão da Primeira Leitura</span>
+              </button>
+              <div *ngIf="loadingReflexao && reflexaoAtual === 'primeiraLeitura'" role="status" aria-live="polite">
+                Gerando reflexão, por favor aguarde...
+              </div>
+              <div *ngIf="reflexoes.primeiraLeitura" class="reflexao-container" role="region" aria-label="Reflexão da Primeira Leitura">
+                <h3 tabindex="0">Reflexão da Primeira Leitura</h3>
+                <p class="liturgia-text" tabindex="0">{{ reflexoes.primeiraLeitura }}</p>
+              </div>
 
               <h2>Salmo</h2>
               <p class="liturgia-text">{{ liturgiaData.salmo.referencia }}</p>
               <p class="liturgia-text">Refrão: {{ liturgiaData.salmo.refrao }}</p>
               <p class="liturgia-text">{{ liturgiaData.salmo.texto }}</p>
+              <button mat-button color="primary" (click)="gerarReflexao('salmo')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão do Salmo'">
+                <mat-icon aria-hidden="true">psychology</mat-icon>
+                <span>Reflexão do Salmo</span>
+              </button>
+              <div *ngIf="loadingReflexao && reflexaoAtual === 'salmo'" role="status" aria-live="polite">
+                Gerando reflexão, por favor aguarde...
+              </div>
+              <div *ngIf="reflexoes.salmo" class="reflexao-container" role="region" aria-label="Reflexão do Salmo">
+                <h3 tabindex="0">Reflexão do Salmo</h3>
+                <p class="liturgia-text" tabindex="0">{{ reflexoes.salmo }}</p>
+              </div>
 
               <ng-container *ngIf="liturgiaData.segundaLeitura">
                 <h2>Segunda Leitura</h2>
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.referencia }}</p>
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.titulo }}</p>
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.texto }}</p>
+                <button mat-button color="primary" (click)="gerarReflexao('segundaLeitura')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão da Segunda Leitura'">
+                  <mat-icon aria-hidden="true">psychology</mat-icon>
+                  <span>Reflexão da Segunda Leitura</span>
+                </button>
+                <div *ngIf="loadingReflexao && reflexaoAtual === 'segundaLeitura'" role="status" aria-live="polite">
+                  Gerando reflexão, por favor aguarde...
+                </div>
+                <div *ngIf="reflexoes.segundaLeitura" class="reflexao-container" role="region" aria-label="Reflexão da Segunda Leitura">
+                  <h3 tabindex="0">Reflexão da Segunda Leitura</h3>
+                  <p class="liturgia-text" tabindex="0">{{ reflexoes.segundaLeitura }}</p>
+                </div>
               </ng-container>
 
               <h2>Evangelho</h2>
               <p class="liturgia-text">{{ liturgiaData.evangelho.referencia }}</p>
               <p class="liturgia-text">{{ liturgiaData.evangelho.titulo }}</p>
               <p class="liturgia-text">{{ liturgiaData.evangelho.texto }}</p>
+              <button mat-button color="primary" (click)="gerarReflexao('evangelho')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão do Evangelho'">
+                <mat-icon aria-hidden="true">psychology</mat-icon>
+                <span>Reflexão do Evangelho</span>
+              </button>
+              <div *ngIf="loadingReflexao && reflexaoAtual === 'evangelho'" role="status" aria-live="polite">
+                Gerando reflexão, por favor aguarde...
+              </div>
+              <div *ngIf="reflexoes.evangelho" class="reflexao-container" role="region" aria-label="Reflexão do Evangelho">
+                <h3 tabindex="0">Reflexão do Evangelho</h3>
+                <p class="liturgia-text" tabindex="0">{{ reflexoes.evangelho }}</p>
+              </div>
             </div>
 
             <!-- Seção de Antífona -->
@@ -241,19 +294,46 @@ const BRAZILIAN_DATE_FORMATS = {
     .spacer {
       flex: 1;
     }
+
+    .reflexao-container {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border-left: 4px solid #3f51b5;
+    }
+
+    .reflexao-container h3 {
+      color: #3f51b5;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    button[mat-button] {
+      margin: 1rem 0;
+    }
+
+    button[mat-button] .mat-icon {
+      margin-right: 8px;
+    }
   `]
 })
 export class LiturgiaComponent implements OnInit {
   liturgiaData: Liturgia | null = null;
   loading = false;
+  loadingReflexao = false;
   selectedDate = new Date();
   activeSection: 'oferendas' | 'leituras' | 'antifona' = 'leituras';
+  reflexoes: ReflexoesLeitura = {};
+  reflexaoAtual: keyof ReflexoesLeitura | null = null;
 
   constructor(
     private liturgiaService: LiturgiaService,
     private dateAdapter: DateAdapter<Date>,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private aiService: AiService,
+    private authService: AuthService
   ) {
     this.dateAdapter.setLocale('pt-BR');
   }
@@ -331,5 +411,94 @@ export class LiturgiaComponent implements OnInit {
 
   voltarParaHome() {
     this.router.navigate(['/home']);
+  }
+
+  gerarReflexao(tipo: keyof ReflexoesLeitura) {
+    if (this.loadingReflexao) {
+      return;
+    }
+
+    this.loadingReflexao = true;
+    this.reflexaoAtual = tipo;
+
+    let titulo = '';
+    let texto = '';
+
+    switch (tipo) {
+      case 'primeiraLeitura':
+        titulo = 'Primeira Leitura';
+        texto = this.liturgiaData?.primeiraLeitura?.texto || '';
+        break;
+      case 'salmo':
+        titulo = 'Salmo';
+        texto = this.liturgiaData?.salmo?.texto || '';
+        break;
+      case 'segundaLeitura':
+        titulo = 'Segunda Leitura';
+        texto = this.liturgiaData?.segundaLeitura?.texto || '';
+        break;
+      case 'evangelho':
+        titulo = 'Evangelho';
+        texto = this.liturgiaData?.evangelho?.texto || '';
+        break;
+    }
+
+    if (texto) {
+      const pergunta = `Qual a reflexão para o trecho bíblico: ${texto}`;
+      console.log('Gerando reflexão para:', titulo);
+      console.log('Texto:', texto);
+
+      this.aiService.getReflexao(pergunta).subscribe({
+        next: (resposta) => {
+          console.log('Resposta recebida:', resposta);
+          if (typeof resposta === 'string') {
+            this.reflexoes[tipo] = resposta;
+            this.loadingReflexao = false;
+            this.reflexaoAtual = null;
+
+            // Foca no container da reflexão após ela ser gerada
+            setTimeout(() => {
+              const reflexaoContainer = document.querySelector(`[aria-label="Reflexão do ${titulo}"]`);
+              if (reflexaoContainer) {
+                (reflexaoContainer as HTMLElement).focus();
+              }
+            }, 100);
+          } else {
+            console.error('Resposta inválida:', resposta);
+            alert('Erro ao processar a reflexão. Por favor, tente novamente.');
+            this.loadingReflexao = false;
+            this.reflexaoAtual = null;
+          }
+        },
+        error: (error) => {
+          console.error('Erro detalhado ao gerar reflexão:', error);
+          if (error.status === 401 || error.status === 403) {
+            alert('Sua sessão expirou. Por favor, faça login novamente.');
+            this.router.navigate(['/login'], {
+              queryParams: {
+                returnUrl: this.router.url
+              }
+            });
+          } else if (typeof error === 'string' && error.includes('reflexão')) {
+            // Se o erro contiver o texto da reflexão, vamos usá-lo
+            this.reflexoes[tipo] = error;
+            this.loadingReflexao = false;
+            this.reflexaoAtual = null;
+
+            // Foca no container da reflexão após ela ser gerada
+            setTimeout(() => {
+              const reflexaoContainer = document.querySelector(`[aria-label="Reflexão do ${titulo}"]`);
+              if (reflexaoContainer) {
+                (reflexaoContainer as HTMLElement).focus();
+              }
+            }, 100);
+          } else {
+            alert(`Erro ao gerar reflexão:\n${error}`);
+          }
+          this.loadingReflexao = false;
+          this.reflexaoAtual = null;
+        }
+      });
+    }
   }
 }
