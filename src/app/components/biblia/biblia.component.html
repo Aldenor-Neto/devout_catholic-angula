@@ -44,12 +44,12 @@
         </div>
 
         <div class="navegacao-capitulos">
-          <button mat-raised-button 
+          <button mat-raised-button
                   [disabled]="capituloAtual === 0"
                   (click)="capituloAnterior()">
             Capítulo Anterior
           </button>
-          <button mat-raised-button 
+          <button mat-raised-button
                   [disabled]="!livroSelecionado || capituloAtual >= livroSelecionado.chapters.length - 1"
                   (click)="proximoCapitulo()">
             Próximo Capítulo
@@ -58,4 +58,4 @@
       </div>
     }
   </div>
-</div> 
+</div>

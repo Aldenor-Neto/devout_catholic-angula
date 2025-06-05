@@ -81,10 +81,10 @@ const BRAZILIAN_DATE_FORMATS = {
             <div *ngIf="activeSection === 'oferendas'">
               <h2>Oração do Dia</h2>
               <p class="liturgia-text">{{ liturgiaData.dia }}</p>
-              
+
               <h2>Oferenda</h2>
               <p class="liturgia-text">{{ liturgiaData.oferendas }}</p>
-              
+
               <h2>Pós-comunhão</h2>
               <p class="liturgia-text">{{ liturgiaData.comunhao }}</p>
             </div>
@@ -257,15 +257,28 @@ export class LiturgiaComponent implements OnInit {
 
   private fetchLiturgiaData(dia: number, mes: number, ano: number) {
     this.loading = true;
-    this.liturgiaService.getLiturgia(dia, mes, ano).subscribe({
-      next: (data) => {
-        this.liturgiaData = data;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar liturgia:', error);
-        this.loading = false;
-      }
-    });
+    if (dia && mes && ano) {
+      this.liturgiaService.getLiturgia(dia, mes, ano).subscribe({
+        next: (data) => {
+          this.liturgiaData = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar liturgia:', error);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.liturgiaService.getLiturgiaDoDia().subscribe({
+        next: (data) => {
+          this.liturgiaData = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar liturgia:', error);
+          this.loading = false;
+        }
+      });
+    }
   }
-} 
+}

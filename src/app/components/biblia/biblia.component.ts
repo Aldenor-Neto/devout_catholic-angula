@@ -97,4 +97,4 @@ export class BibliaComponent implements OnInit {
   voltarParaLivros() {
     this.livroSelecionado = null;
   }
-} 
+}

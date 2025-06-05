@@ -211,4 +211,4 @@ export class AnotacoesComponent implements OnInit {
   voltarParaHome() {
     this.router.navigate(['/home']);
   }
-} 
+}
