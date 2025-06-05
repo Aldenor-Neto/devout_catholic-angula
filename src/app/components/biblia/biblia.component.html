@@ -10,6 +10,9 @@
     <button mat-button (click)="trocarVersao()">
       {{ versaoAtual === 'avemaria' ? 'Versão Ave Maria' : 'Versão Jerusalém' }}
     </button>
+    <button mat-fab color="primary" (click)="criarNota()" aria-label="Criar nova anotação">
+      <mat-icon>note_add</mat-icon>
+    </button>
   </div>
 
   <div class="content">
@@ -59,3 +62,16 @@
     }
   </div>
 </div>
+
+<style>
+.spacer {
+  flex: 1;
+}
+
+.biblia-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+}
+</style>

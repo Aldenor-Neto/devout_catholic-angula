@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,41 +34,61 @@ export class BibliaComponent implements OnInit {
   constructor(
     private bibliaService: BibliaService,
     private router: Router,
+    private route: ActivatedRoute,
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    this.carregarLivros();
+    // Verifica se há parâmetros para restaurar o estado
+    this.route.queryParams.subscribe(params => {
+      if (params['livro'] && params['capitulo'] !== undefined && params['versao']) {
+        this.versaoAtual = params['versao'];
+        this.carregarLivros().then(() => {
+          this.buscarLivro(params['livro']).then(() => {
+            this.capituloAtual = Number(params['capitulo']);
+          });
+        });
+      } else {
+        this.carregarLivros();
+      }
+    });
   }
 
   carregarLivros() {
     this.loading = true;
-    this.bibliaService.listarLivros(this.versaoAtual).subscribe({
-      next: (livros) => {
-        this.livros = livros;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar livros:', error);
-        alert(error.error || 'Erro ao carregar os livros');
-        this.loading = false;
-      }
+    return new Promise<void>((resolve) => {
+      this.bibliaService.listarLivros(this.versaoAtual).subscribe({
+        next: (livros) => {
+          this.livros = livros;
+          this.loading = false;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erro ao carregar livros:', error);
+          alert(error.error || 'Erro ao carregar os livros');
+          this.loading = false;
+          resolve();
+        }
+      });
     });
   }
 
   buscarLivro(nome: string) {
     this.loading = true;
-    this.bibliaService.buscarLivro(nome, this.versaoAtual).subscribe({
-      next: (livro) => {
-        this.livroSelecionado = livro;
-        this.capituloAtual = 0;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar livro:', error);
-        alert(error.error || 'Erro ao carregar o livro');
-        this.loading = false;
-      }
+    return new Promise<void>((resolve) => {
+      this.bibliaService.buscarLivro(nome, this.versaoAtual).subscribe({
+        next: (livro) => {
+          this.livroSelecionado = livro;
+          this.loading = false;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erro ao carregar livro:', error);
+          alert(error.error || 'Erro ao carregar o livro');
+          this.loading = false;
+          resolve();
+        }
+      });
     });
   }
 
@@ -96,5 +116,17 @@ export class BibliaComponent implements OnInit {
 
   voltarParaLivros() {
     this.livroSelecionado = null;
+  }
+
+  criarNota() {
+    this.router.navigate(['/anotacoes'], {
+      queryParams: {
+        modo: 'criar',
+        origem: 'biblia',
+        livro: this.livroSelecionado?.name || '',
+        capitulo: this.capituloAtual,
+        versao: this.versaoAtual
+      }
+    });
   }
 }

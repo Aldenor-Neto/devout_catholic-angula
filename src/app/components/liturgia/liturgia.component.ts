@@ -8,10 +8,12 @@ import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } f
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { HeaderComponent } from '../header/header.component';
 import { LiturgiaService } from '../../services/liturgia.service';
 import { Liturgia } from '../../interfaces/liturgia.interface';
 import { BrazilianDateAdapter } from '../../shared/brazilian-date.adapter';
+import { Router, ActivatedRoute } from '@angular/router';
 
 const BRAZILIAN_DATE_FORMATS = {
   parse: {
@@ -38,6 +40,7 @@ const BRAZILIAN_DATE_FORMATS = {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatIconModule,
     HeaderComponent
   ],
   providers: [
@@ -51,6 +54,17 @@ const BRAZILIAN_DATE_FORMATS = {
 
       <main class="content">
         <div class="controls">
+          <div class="toolbar">
+            <button mat-icon-button (click)="voltarParaHome()" [attr.aria-label]="'Voltar para a página inicial'">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <span>Liturgia Diária</span>
+            <span class="spacer"></span>
+            <button mat-fab color="primary" (click)="criarNota()" [attr.aria-label]="'Criar nova anotação'">
+              <mat-icon>note_add</mat-icon>
+            </button>
+          </div>
+
           <mat-form-field appearance="outline">
             <mat-label>Escolher data</mat-label>
             <input matInput [matDatepicker]="picker" [value]="selectedDate" (dateChange)="onDateChange($event)" placeholder="DD/MM/AAAA">
@@ -216,6 +230,17 @@ const BRAZILIAN_DATE_FORMATS = {
         width: 100%;
       }
     }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
   `]
 })
 export class LiturgiaComponent implements OnInit {
@@ -226,17 +251,28 @@ export class LiturgiaComponent implements OnInit {
 
   constructor(
     private liturgiaService: LiturgiaService,
-    private dateAdapter: DateAdapter<Date>
+    private dateAdapter: DateAdapter<Date>,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.dateAdapter.setLocale('pt-BR');
   }
 
   ngOnInit() {
-    this.fetchLiturgiaData(
-      this.selectedDate.getDate(),
-      this.selectedDate.getMonth() + 1,
-      this.selectedDate.getFullYear()
-    );
+    // Verifica se há parâmetros para restaurar o estado
+    this.route.queryParams.subscribe(params => {
+      if (params['data']) {
+        this.selectedDate = new Date(params['data']);
+        if (params['secao']) {
+          this.activeSection = params['secao'];
+        }
+      }
+      this.fetchLiturgiaData(
+        this.selectedDate.getDate(),
+        this.selectedDate.getMonth() + 1,
+        this.selectedDate.getFullYear()
+      );
+    });
   }
 
   onDateChange(event: any) {
@@ -280,5 +316,20 @@ export class LiturgiaComponent implements OnInit {
         }
       });
     }
+  }
+
+  criarNota() {
+    this.router.navigate(['/anotacoes'], {
+      queryParams: {
+        modo: 'criar',
+        origem: 'liturgia',
+        data: this.selectedDate.toISOString(),
+        secao: this.activeSection
+      }
+    });
+  }
+
+  voltarParaHome() {
+    this.router.navigate(['/home']);
   }
 }

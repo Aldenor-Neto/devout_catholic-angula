@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderComponent } from '../header/header.component';
 import { AnotacoesService, Anotacao } from '../../services/anotacoes.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-anotacoes',
@@ -41,14 +41,39 @@ export class AnotacoesComponent implements OnInit {
   };
   modoEdicao = false;
   anotacaoEmEdicao: Anotacao | null = null;
+  paginaOrigem: string | null = null;
+  estadoOrigem: any = null;
 
   constructor(
     private anotacoesService: AnotacoesService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.carregarAnotacoes();
+
+    // Verifica se deve abrir o formulário automaticamente e guarda a origem com seu estado
+    this.route.queryParams.subscribe(params => {
+      if (params['modo'] === 'criar') {
+        this.abrirFormulario();
+        this.paginaOrigem = params['origem'] || null;
+
+        // Guarda o estado da página de origem
+        if (this.paginaOrigem === 'biblia') {
+          this.estadoOrigem = {
+            livro: params['livro'],
+            capitulo: Number(params['capitulo']),
+            versao: params['versao']
+          };
+        } else if (this.paginaOrigem === 'liturgia') {
+          this.estadoOrigem = {
+            data: params['data'],
+            secao: params['secao']
+          };
+        }
+      }
+    });
   }
 
   carregarAnotacoes() {
@@ -94,12 +119,30 @@ export class AnotacoesComponent implements OnInit {
   }
 
   fecharFormulario() {
-    if (this.modoEdicao) {
-      if (confirm('Tem certeza que deseja cancelar? As alterações não serão salvas.')) {
-        this.resetarFormulario();
-      }
-    } else {
+    if (confirm('Tem certeza que deseja cancelar? As alterações não salvas serão perdidas.')) {
       this.resetarFormulario();
+
+      // Retorna para a página de origem com o estado salvo
+      if (this.paginaOrigem) {
+        if (this.paginaOrigem === 'biblia' && this.estadoOrigem) {
+          this.router.navigate(['/biblia'], {
+            queryParams: {
+              livro: this.estadoOrigem.livro,
+              capitulo: this.estadoOrigem.capitulo,
+              versao: this.estadoOrigem.versao
+            }
+          });
+        } else if (this.paginaOrigem === 'liturgia' && this.estadoOrigem) {
+          this.router.navigate(['/liturgia'], {
+            queryParams: {
+              data: this.estadoOrigem.data,
+              secao: this.estadoOrigem.secao
+            }
+          });
+        } else {
+          this.router.navigate(['/' + this.paginaOrigem]);
+        }
+      }
     }
   }
 
@@ -112,6 +155,34 @@ export class AnotacoesComponent implements OnInit {
       conteudo: '',
       data: new Date().toISOString()
     };
+  }
+
+  cancelarEdicao() {
+    if (confirm('Tem certeza que deseja cancelar? As alterações não salvas serão perdidas.')) {
+      this.resetarFormulario();
+
+      // Retorna para a página de origem com o estado salvo
+      if (this.paginaOrigem) {
+        if (this.paginaOrigem === 'biblia' && this.estadoOrigem) {
+          this.router.navigate(['/biblia'], {
+            queryParams: {
+              livro: this.estadoOrigem.livro,
+              capitulo: this.estadoOrigem.capitulo,
+              versao: this.estadoOrigem.versao
+            }
+          });
+        } else if (this.paginaOrigem === 'liturgia' && this.estadoOrigem) {
+          this.router.navigate(['/liturgia'], {
+            queryParams: {
+              data: this.estadoOrigem.data,
+              secao: this.estadoOrigem.secao
+            }
+          });
+        } else {
+          this.router.navigate(['/' + this.paginaOrigem]);
+        }
+      }
+    }
   }
 
   salvarAnotacao() {
@@ -150,9 +221,31 @@ export class AnotacoesComponent implements OnInit {
 
       this.anotacoesService.criarAnotacao(novaNota).subscribe({
         next: () => {
-          this.carregarAnotacoes();
-          this.resetarFormulario();
           alert('Anotação criada com sucesso!');
+          // Retorna para a página de origem com o estado salvo
+          if (this.paginaOrigem) {
+            if (this.paginaOrigem === 'biblia' && this.estadoOrigem) {
+              this.router.navigate(['/biblia'], {
+                queryParams: {
+                  livro: this.estadoOrigem.livro,
+                  capitulo: this.estadoOrigem.capitulo,
+                  versao: this.estadoOrigem.versao
+                }
+              });
+            } else if (this.paginaOrigem === 'liturgia' && this.estadoOrigem) {
+              this.router.navigate(['/liturgia'], {
+                queryParams: {
+                  data: this.estadoOrigem.data,
+                  secao: this.estadoOrigem.secao
+                }
+              });
+            } else {
+              this.router.navigate(['/' + this.paginaOrigem]);
+            }
+          } else {
+            this.carregarAnotacoes();
+            this.resetarFormulario();
+          }
         },
         error: (error) => {
           console.error('Erro ao criar anotação:', error);
