@@ -1,7 +1,7 @@
 <div class="container">
   <div class="auth-card">
     <img src="assets/images/símbolos católicos.jpg" alt="Símbolos Católicos" class="logo">
-    
+
     <h1 class="title">Devout Catholic</h1>
     <h2 class="subtitle">{{ modoCadastro ? 'Cadastro' : 'Login' }}</h2>
 
@@ -22,7 +22,7 @@
         <mat-label>Senha</mat-label>
         <input matInput [type]="mostrarSenha ? 'text' : 'password'"
                [(ngModel)]="senha" name="senha" required>
-        <button mat-icon-button matSuffix (click)="mostrarSenha = !mostrarSenha" type="button">
+        <button mat-icon-button matSuffix (click)="mostrarSenha = !mostrarSenha" type="button" [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
           <mat-icon>{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
       </mat-form-field>
@@ -31,17 +31,17 @@
         <button mat-raised-button color="primary" type="submit" *ngIf="!modoCadastro">
           Entrar
         </button>
-        
+
         <button mat-raised-button color="accent" type="button" (click)="handleCadastro()">
           {{ modoCadastro ? 'Fazer Cadastro' : 'Cadastrar' }}
         </button>
 
-        <button mat-button color="warn" type="button" 
-                *ngIf="modoCadastro" 
+        <button mat-button color="warn" type="button"
+                *ngIf="modoCadastro"
                 (click)="modoCadastro = false">
           Voltar para Login
         </button>
       </div>
     </form>
   </div>
-</div> 
+</div>

@@ -44,17 +44,25 @@ export class HomeComponent {
       case 'Bíblia Sagrada':
         this.router.navigate(['/biblia']);
         break;
-      
+
       case 'Liturgia Diária':
         this.router.navigate(['/liturgia']);
         break;
-      
+
       case 'Anotações':
         this.router.navigate(['/anotacoes']);
         break;
-      
+
+      case 'Meditação':
+        this.router.navigate(['/meditacao']);
+        break;
+
+      case 'Santo do Dia':
+        this.router.navigate(['/santo']);
+        break;
+
       default:
         alert(`A funcionalidade "${nome}" ainda não foi implementada.`);
     }
   }
-} 
+}

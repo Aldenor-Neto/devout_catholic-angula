@@ -5,6 +5,8 @@ import { BibliaComponent } from './components/biblia/biblia.component';
 import { AnotacoesComponent } from './components/anotacoes/anotacoes.component';
 import { VisualizarAnotacaoComponent } from './components/anotacoes/visualizar-anotacao/visualizar-anotacao.component';
 import { LiturgiaComponent } from './components/liturgia/liturgia.component';
+import { MeditacaoComponent } from './components/meditacao/meditacao.component';
+import { SantoComponent } from './components/santo/santo.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/auth', pathMatch: 'full' },
@@ -13,5 +15,7 @@ export const routes: Routes = [
   { path: 'biblia', component: BibliaComponent },
   { path: 'anotacoes', component: AnotacoesComponent },
   { path: 'anotacoes/visualizar/:id', component: VisualizarAnotacaoComponent },
-  { path: 'liturgia', component: LiturgiaComponent }
+  { path: 'liturgia', component: LiturgiaComponent },
+  { path: 'meditacao', component: MeditacaoComponent },
+  { path: 'santo', component: SantoComponent }
 ];

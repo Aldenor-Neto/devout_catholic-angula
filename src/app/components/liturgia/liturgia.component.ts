@@ -122,7 +122,7 @@ interface ReflexoesLeitura {
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.referencia }}</p>
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.titulo }}</p>
               <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.texto }}</p>
-              <button mat-button color="primary" (click)="gerarReflexao('primeiraLeitura')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão da Primeira Leitura'">
+              <button mat-button color="primary" (click)="gerarReflexao('primeiraLeitura')" [disabled]="loadingReflexao || !hasContent('primeiraLeitura')" [attr.aria-label]="'Gerar reflexão da Primeira Leitura'">
                 <mat-icon aria-hidden="true">psychology</mat-icon>
                 <span>Reflexão da Primeira Leitura</span>
               </button>
@@ -138,7 +138,7 @@ interface ReflexoesLeitura {
               <p class="liturgia-text">{{ liturgiaData.salmo.referencia }}</p>
               <p class="liturgia-text">Refrão: {{ liturgiaData.salmo.refrao }}</p>
               <p class="liturgia-text">{{ liturgiaData.salmo.texto }}</p>
-              <button mat-button color="primary" (click)="gerarReflexao('salmo')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão do Salmo'">
+              <button mat-button color="primary" (click)="gerarReflexao('salmo')" [disabled]="loadingReflexao || !hasContent('salmo')" [attr.aria-label]="'Gerar reflexão do Salmo'">
                 <mat-icon aria-hidden="true">psychology</mat-icon>
                 <span>Reflexão do Salmo</span>
               </button>
@@ -155,7 +155,7 @@ interface ReflexoesLeitura {
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.referencia }}</p>
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.titulo }}</p>
                 <p class="liturgia-text">{{ liturgiaData.segundaLeitura.texto }}</p>
-                <button mat-button color="primary" (click)="gerarReflexao('segundaLeitura')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão da Segunda Leitura'">
+                <button mat-button color="primary" (click)="gerarReflexao('segundaLeitura')" [disabled]="loadingReflexao || !hasContent('segundaLeitura')" [attr.aria-label]="'Gerar reflexão da Segunda Leitura'">
                   <mat-icon aria-hidden="true">psychology</mat-icon>
                   <span>Reflexão da Segunda Leitura</span>
                 </button>
@@ -172,7 +172,7 @@ interface ReflexoesLeitura {
               <p class="liturgia-text">{{ liturgiaData.evangelho.referencia }}</p>
               <p class="liturgia-text">{{ liturgiaData.evangelho.titulo }}</p>
               <p class="liturgia-text">{{ liturgiaData.evangelho.texto }}</p>
-              <button mat-button color="primary" (click)="gerarReflexao('evangelho')" [disabled]="loadingReflexao" [attr.aria-label]="'Gerar reflexão do Evangelho'">
+              <button mat-button color="primary" (click)="gerarReflexao('evangelho')" [disabled]="loadingReflexao || !hasContent('evangelho')" [attr.aria-label]="'Gerar reflexão do Evangelho'">
                 <mat-icon aria-hidden="true">psychology</mat-icon>
                 <span>Reflexão do Evangelho</span>
               </button>
@@ -499,6 +499,23 @@ export class LiturgiaComponent implements OnInit {
           this.reflexaoAtual = null;
         }
       });
+    }
+  }
+
+  hasContent(tipo: keyof ReflexoesLeitura): boolean {
+    if (!this.liturgiaData) return false;
+
+    switch (tipo) {
+      case 'primeiraLeitura':
+        return !!this.liturgiaData.primeiraLeitura?.texto;
+      case 'salmo':
+        return !!this.liturgiaData.salmo?.texto;
+      case 'segundaLeitura':
+        return !!this.liturgiaData.segundaLeitura?.texto;
+      case 'evangelho':
+        return !!this.liturgiaData.evangelho?.texto;
+      default:
+        return false;
     }
   }
 }

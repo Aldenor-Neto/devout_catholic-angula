@@ -1,0 +1,44 @@
+<div class="container">
+  <app-header></app-header>
+
+  <main class="content">
+    <div class="toolbar">
+      <button mat-icon-button (click)="voltarParaHome()" [attr.aria-label]="'Voltar para a página inicial'">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>Santo do Dia</span>
+      <span class="spacer"></span>
+      <button mat-fab color="primary" (click)="criarNota()" [attr.aria-label]="'Criar nova anotação'">
+        <mat-icon>note_add</mat-icon>
+      </button>
+    </div>
+
+    <div class="controls">
+      <mat-form-field appearance="outline">
+        <mat-label>Escolher data</mat-label>
+        <input matInput [matDatepicker]="picker" [value]="selectedDate"
+               (dateChange)="onDateChange($event)" placeholder="DD/MM/AAAA"
+               [attr.aria-label]="'Campo para selecionar a data'">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="loading-container" *ngIf="loading" role="status" aria-live="polite">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Buscando o santo do dia...</p>
+    </div>
+
+    <mat-card class="saint-card" *ngIf="!loading">
+      <mat-card-content>
+        <div class="saint-text" tabindex="0" role="article" aria-label="História do santo do dia">
+          {{ santo }}
+        </div>
+        <button mat-button color="primary" (click)="buscarSantoDoDia()" [attr.aria-label]="'Atualizar informações do santo do dia'">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          <span>Atualizar</span>
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </main>
+</div>

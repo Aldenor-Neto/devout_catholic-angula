@@ -1,0 +1,33 @@
+<div class="container">
+  <app-header></app-header>
+
+  <main class="content">
+    <div class="toolbar">
+      <button mat-icon-button (click)="voltarParaHome()" [attr.aria-label]="'Voltar para a página inicial'">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>Meditação</span>
+      <span class="spacer"></span>
+      <button mat-fab color="primary" (click)="criarNota()" [attr.aria-label]="'Criar nova anotação'">
+        <mat-icon>note_add</mat-icon>
+      </button>
+    </div>
+
+    <div class="loading-container" *ngIf="loading" role="status" aria-live="polite">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Gerando sua meditação...</p>
+    </div>
+
+    <mat-card class="meditation-card" *ngIf="!loading">
+      <mat-card-content>
+        <div class="meditation-text" tabindex="0" role="article" aria-label="Texto da meditação">
+          {{ meditacao }}
+        </div>
+        <button mat-button color="primary" (click)="gerarMeditacao()" [attr.aria-label]="'Gerar nova meditação'">
+          <mat-icon aria-hidden="true">psychology</mat-icon>
+          <span>Nova Meditação</span>
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </main>
+</div>
