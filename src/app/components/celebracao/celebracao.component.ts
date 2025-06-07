@@ -1,22 +1,54 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
+import { LiturgiaService } from '../../services/liturgia.service';
+import { Liturgia } from '../../interfaces/liturgia.interface';
+import { BrazilianDateAdapter } from '../../shared/brazilian-date.adapter';
+
+const BRAZILIAN_DATE_FORMATS = {
+  parse: {
+    dateInput: 'input',
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
   selector: 'app-celebracao',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
     MatExpansionModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
     HeaderComponent
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: DateAdapter, useClass: BrazilianDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
   ],
   template: `
     <div class="container">
@@ -28,6 +60,17 @@ import { HeaderComponent } from '../header/header.component';
             <mat-icon>arrow_back</mat-icon>
           </button>
           <span>Celebração da Palavra</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Escolher data</mat-label>
+          <input matInput [matDatepicker]="picker" [value]="selectedDate" (dateChange)="onDateChange($event)" placeholder="DD/MM/AAAA">
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <div class="loading-container" *ngIf="loading">
+          <mat-spinner diameter="40"></mat-spinner>
         </div>
 
         <mat-card class="celebracao-card">
@@ -119,7 +162,7 @@ import { HeaderComponent } from '../header/header.component';
 
                   <h3>Oração do Dia</h3>
                   <p><strong>M.:</strong> Oremos.</p>
-                  <p><em>Oração Coleta da Liturgia Diária</em></p>
+                  <p *ngIf="liturgiaData"><em>{{ liturgiaData.dia }}</em></p>
                   <p><strong>T.:</strong> Amém.</p>
 
                   <h3>Invocação ao Espírito Santo</h3>
@@ -138,15 +181,64 @@ import { HeaderComponent } from '../header/header.component';
                     Liturgia da Palavra
                   </mat-panel-title>
                 </mat-expansion-panel-header>
-                <div class="texto">
-                  <ul>
-                    <li>Primeira Leitura</li>
-                    <li>Salmo Responsorial</li>
-                    <li>Aclamação ao Evangelho</li>
-                    <li>Evangelho</li>
-                    <li>Partilha da Palavra</li>
-                    <li>Profissão de Fé <em>(Domingos e Solenidades)</em></li>
-                  </ul>
+                <div class="texto" *ngIf="liturgiaData">
+                  <h3>{{ liturgiaData.data }}</h3>
+                  <p class="liturgia-text">{{ liturgiaData.liturgia }}</p>
+                  <p class="liturgia-text">Cor: {{ liturgiaData.cor }}</p>
+
+                  <h3>Primeira Leitura</h3>
+                  <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.referencia }}</p>
+                  <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.titulo }}</p>
+                  <p class="liturgia-text">{{ liturgiaData.primeiraLeitura.texto }}</p>
+                  <p><strong>M.:</strong> Palavra do Senhor.</p>
+                  <p><strong>T.:</strong> Graças a Deus.</p>
+
+                  <h3>Salmo Responsorial</h3>
+                  <p class="liturgia-text">{{ liturgiaData.salmo.referencia }}</p>
+                  <p class="liturgia-text"><strong>Refrão:</strong> {{ liturgiaData.salmo.refrao }}</p>
+                  <p class="liturgia-text">{{ liturgiaData.salmo.texto }}</p>
+
+                  <ng-container *ngIf="liturgiaData.segundaLeitura">
+                    <h3>Segunda Leitura</h3>
+                    <p class="liturgia-text">{{ liturgiaData.segundaLeitura.referencia }}</p>
+                    <p class="liturgia-text">{{ liturgiaData.segundaLeitura.titulo }}</p>
+                    <p class="liturgia-text">{{ liturgiaData.segundaLeitura.texto }}</p>
+                    <p><strong>M.:</strong> Palavra do Senhor.</p>
+                    <p><strong>T.:</strong> Graças a Deus.</p>
+                  </ng-container>
+
+                  <h3>Aclamação ao Evangelho</h3>
+                  <p><strong>T.:</strong> Aleluia, Aleluia, Aleluia.</p>
+
+                  <h3>Evangelho</h3>
+                  <p class="liturgia-text">{{ liturgiaData.evangelho.referencia }}</p>
+                  <p class="liturgia-text">{{ liturgiaData.evangelho.titulo }}</p>
+                  <p><strong>M.:</strong> O Senhor esteja convosco.</p>
+                  <p><strong>T.:</strong> Ele está no meio de nós.</p>
+                  <p><strong>M.:</strong> Proclamação do Evangelho de Jesus Cristo segundo {{ liturgiaData.evangelho.referencia.split(' ')[0] }}.</p>
+                  <p><strong>T.:</strong> Glória a vós, Senhor.</p>
+                  <p class="liturgia-text">{{ liturgiaData.evangelho.texto }}</p>
+                  <p><strong>M.:</strong> Palavra da Salvação.</p>
+                  <p><strong>T.:</strong> Glória a vós, Senhor.</p>
+
+                  <h3>Partilha da Palavra</h3>
+                  <p><em>Momento para reflexão e partilha da Palavra</em></p>
+
+                  <h3>Profissão de Fé</h3>
+                  <p><strong>T.:</strong></p>
+                  <blockquote>
+                    Creio em Deus Pai todo-poderoso, criador do céu e da terra.<br>
+                    E em Jesus Cristo, seu único Filho, nosso Senhor,<br>
+                    que foi concebido pelo poder do Espírito Santo;<br>
+                    nasceu da Virgem Maria; padeceu sob Pôncio Pilatos,<br>
+                    foi crucificado, morto e sepultado.<br>
+                    Desceu à mansão dos mortos; ressuscitou ao terceiro dia,<br>
+                    subiu aos céus; está sentado à direita de Deus Pai todo-poderoso,<br>
+                    donde há de vir a julgar os vivos e os mortos.<br>
+                    Creio no Espírito Santo; na Santa Igreja católica;<br>
+                    na comunhão dos santos; na remissão dos pecados;<br>
+                    na ressurreição da carne; na vida eterna. Amém.
+                  </blockquote>
 
                   <h3>Oração dos Fiéis</h3>
                   <p><em>Preces dos fiéis</em></p>
@@ -279,6 +371,17 @@ import { HeaderComponent } from '../header/header.component';
       margin-bottom: 1rem;
     }
 
+    .date-field {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
+
     .celebracao-card {
       margin-bottom: 2rem;
     }
@@ -362,6 +465,13 @@ import { HeaderComponent } from '../header/header.component';
       font-weight: 500;
     }
 
+    .liturgia-text {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      color: rgba(0, 0, 0, 0.87);
+      white-space: pre-wrap;
+    }
+
     @media (max-width: 600px) {
       .content {
         padding: 1rem 0.5rem;
@@ -369,8 +479,65 @@ import { HeaderComponent } from '../header/header.component';
     }
   `]
 })
-export class CelebracaoComponent {
-  constructor(private router: Router) {}
+export class CelebracaoComponent implements OnInit {
+  selectedDate = new Date();
+  liturgiaData: Liturgia | null = null;
+  loading = false;
+
+  constructor(
+    private router: Router,
+    private liturgiaService: LiturgiaService,
+    private dateAdapter: DateAdapter<Date>
+  ) {
+    this.dateAdapter.setLocale('pt-BR');
+  }
+
+  ngOnInit() {
+    this.fetchLiturgiaData(
+      this.selectedDate.getDate(),
+      this.selectedDate.getMonth() + 1,
+      this.selectedDate.getFullYear()
+    );
+  }
+
+  onDateChange(event: any) {
+    const date = event.value;
+    if (date) {
+      this.selectedDate = date;
+      this.fetchLiturgiaData(
+        date.getDate(),
+        date.getMonth() + 1,
+        date.getFullYear()
+      );
+    }
+  }
+
+  private fetchLiturgiaData(dia: number, mes: number, ano: number) {
+    this.loading = true;
+    if (dia && mes && ano) {
+      this.liturgiaService.getLiturgia(dia, mes, ano).subscribe({
+        next: (data) => {
+          this.liturgiaData = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar liturgia:', error);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.liturgiaService.getLiturgiaDoDia().subscribe({
+        next: (data) => {
+          this.liturgiaData = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar liturgia:', error);
+          this.loading = false;
+        }
+      });
+    }
+  }
 
   voltarParaHome() {
     this.router.navigate(['/home']);
