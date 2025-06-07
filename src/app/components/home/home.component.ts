@@ -29,6 +29,16 @@ import { MatGridTile } from '@angular/material/grid-list';
 
         <div class="menu-section">
           <div class="menu-grid">
+            <button mat-raised-button color="primary" (click)="navegarPara('biblia')">
+              <mat-icon>menu_book</mat-icon>
+              <span>Bíblia Sagrada</span>
+            </button>
+
+            <button mat-raised-button color="primary" (click)="navegarPara('anotacoes')">
+              <mat-icon>note_add</mat-icon>
+              <span>Minhas Anotações</span>
+            </button>
+
             <button mat-raised-button color="primary" (click)="navegarPara('liturgia')">
               <mat-icon>book</mat-icon>
               <span>Liturgia Diária</span>
