@@ -7,6 +7,7 @@ import { VisualizarAnotacaoComponent } from './components/anotacoes/visualizar-a
 import { LiturgiaComponent } from './components/liturgia/liturgia.component';
 import { MeditacaoComponent } from './components/meditacao/meditacao.component';
 import { SantoComponent } from './components/santo/santo.component';
+import { CelebracaoComponent } from './components/celebracao/celebracao.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/auth', pathMatch: 'full' },
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'anotacoes/visualizar/:id', component: VisualizarAnotacaoComponent },
   { path: 'liturgia', component: LiturgiaComponent },
   { path: 'meditacao', component: MeditacaoComponent },
-  { path: 'santo', component: SantoComponent }
+  { path: 'santo', component: SantoComponent },
+  { path: 'celebracao', component: CelebracaoComponent }
 ];

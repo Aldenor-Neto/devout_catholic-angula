@@ -6,12 +6,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { AiService } from '../../services/ai.service';
+import { BrazilianDateAdapter } from '../../shared/brazilian-date.adapter';
+
+const BRAZILIAN_DATE_FORMATS = {
+  parse: {
+    dateInput: 'input',
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
   selector: 'app-santo',
@@ -32,7 +45,9 @@ import { AiService } from '../../services/ai.service';
     HeaderComponent
   ],
   providers: [
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: DateAdapter, useClass: BrazilianDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
   ]
 })
 export class SantoComponent implements OnInit {

@@ -61,6 +61,10 @@ export class HomeComponent {
         this.router.navigate(['/santo']);
         break;
 
+      case 'Celebração da Palavra':
+        this.router.navigate(['/celebracao']);
+        break;
+
       default:
         alert(`A funcionalidade "${nome}" ainda não foi implementada.`);
     }
